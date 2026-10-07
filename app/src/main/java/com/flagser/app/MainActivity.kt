@@ -1,7 +1,7 @@
 package com.flagser.app
 
-import android.media.AudioManager
-import android.media.ToneGenerator
+import android.media.AudioAttributes
+import android.media.SoundPool
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -69,18 +69,36 @@ fun FlagserApp(prefs: AppPrefs, engine: GameEngine) {
     val context = LocalContext.current
     var screen by remember { mutableStateOf(Screen.MENU) }
     var studyModule by remember { mutableStateOf<String?>(null) }
-    val tone = remember { ToneGenerator(AudioManager.STREAM_MUSIC, 34) }
-    DisposableEffect(Unit) { onDispose { tone.release() } }
+    val soundPool = remember {
+        val attributes = AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_GAME)
+            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+            .build()
+        SoundPool.Builder()
+            .setMaxStreams(6)
+            .setAudioAttributes(attributes)
+            .build()
+    }
+    val soundIds = remember {
+        listOf("click", "correct2", "wrong", "unlock2", "on", "off").associateWith { name ->
+            val resId = context.resources.getIdentifier(name, "raw", context.packageName)
+            if (resId != 0) soundPool.load(context, resId, 1) else 0
+        }
+    }
+    DisposableEffect(Unit) { onDispose { soundPool.release() } }
 
     fun sound(kind: String = "click") {
         if (prefs.muted) return
-        val t = when (kind) {
-            "correct" -> ToneGenerator.TONE_PROP_ACK
-            "wrong" -> ToneGenerator.TONE_PROP_NACK
-            "unlock" -> ToneGenerator.TONE_PROP_BEEP2
-            else -> ToneGenerator.TONE_PROP_BEEP
+        val asset = when (kind) {
+            "correct" -> "correct2"
+            "wrong" -> "wrong"
+            "unlock" -> "unlock2"
+            "on" -> "on"
+            "off" -> "off"
+            else -> "click"
         }
-        tone.startTone(t, 65)
+        val id = soundIds[asset] ?: 0
+        if (id != 0) soundPool.play(id, 1f, 1f, 1, 0, 1f)
     }
     fun toast(msg: String) = Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
 
@@ -329,8 +347,9 @@ fun UnlocksScreen(p: Palette, prefs: AppPrefs, sound: (String) -> Unit, toast: (
                                 checked = prefs.darkMode,
                                 p = p,
                                 onToggle = {
-                                    prefs.updateDarkMode(!prefs.darkMode)
-                                    sound("click")
+                                    val next = !prefs.darkMode
+                                    prefs.updateDarkMode(next)
+                                    sound(if (next) "on" else "off")
                                 }
                             )
                         } else {
@@ -338,8 +357,9 @@ fun UnlocksScreen(p: Palette, prefs: AppPrefs, sound: (String) -> Unit, toast: (
                                 checked = prefs.darkMode,
                                 p = p,
                                 onToggle = {
-                                    prefs.updateDarkMode(!prefs.darkMode)
-                                    sound("click")
+                                    val next = !prefs.darkMode
+                                    prefs.updateDarkMode(next)
+                                    sound(if (next) "on" else "off")
                                 }
                             )
                         }
