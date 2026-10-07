@@ -5,6 +5,7 @@ import android.media.ToneGenerator
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
@@ -36,6 +37,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import kotlin.math.ceil
 
 enum class Screen { MENU, MODES, UNLOCKS, STUDY, STUDY_READER, SETTINGS, GAME, END }
@@ -94,6 +96,17 @@ fun FlagserApp(prefs: AppPrefs, engine: GameEngine) {
 
     LaunchedEffect(engine.result) {
         if (engine.result != null) screen = Screen.END
+    }
+
+    BackHandler(enabled = screen != Screen.MENU && screen != Screen.GAME) {
+        when (screen) {
+            Screen.STUDY_READER -> screen = Screen.STUDY
+            Screen.END -> {
+                engine.clearResult()
+                screen = Screen.MENU
+            }
+            else -> screen = Screen.MENU
+        }
     }
 
     MaterialTheme {
@@ -163,7 +176,7 @@ fun MenuRow(label: String, aside: String? = null, p: Palette, onClick: () -> Uni
         Text(label, color = p.paper, fontSize = 16.sp)
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             if (!aside.isNullOrBlank()) Text(aside.uppercase(), color = p.muted, fontSize = 8.sp, letterSpacing = .8.sp)
-            Box(Modifier.size(13.dp).clip(CircleShape).background(p.surface2).border(1.dp, p.line, CircleShape))
+            Text("→", color = p.muted, fontSize = 11.sp)
         }
     }
 }
@@ -481,8 +494,12 @@ fun GameScreen(p:Palette,prefs:AppPrefs,engine:GameEngine,sound:(String)->Unit,o
     var quitConfirm by remember{mutableStateOf(false)}
     val q=r.question
     val helperChoices=remember(r.helperVisible,r.cleared){if(r.helperVisible)engine.helperChoices() else emptyList()}
+    BackHandler {
+        if (quitConfirm) quitConfirm = false
+        else if (!r.checkpointVisible && !r.helperVisible) quitConfirm = true
+    }
     Page{
-        TopBar(p,"flagser / quit","saved ${prefs.points.toString().padStart(4,'0')}",{quitConfirm=true},prefs.muted){prefs.updateMuted(!prefs.muted)}
+        TopBar(p,"← flagser / quit","saved ${prefs.points.toString().padStart(4,'0')}",{quitConfirm=true},prefs.muted){prefs.updateMuted(!prefs.muted)}
         Row(Modifier.fillMaxWidth().padding(top=14.dp),horizontalArrangement=Arrangement.SpaceBetween){Text("pot ${r.pot.toString().padStart(3,'0')}",color=p.muted,fontSize=9.sp);Text("${(r.cleared+1).coerceAtMost(r.total).toString().padStart(3,'0')} / ${r.total}",color=p.muted,fontSize=9.sp);Text("${engine.rate()} pts",color=p.muted,fontSize=9.sp)}
         Spacer(Modifier.height(8.dp))
         if(prefs.showGameTitle && q!=null)Text(q.title,color=p.paper,fontSize=52.sp,lineHeight=46.sp,letterSpacing=(-3).sp,fontWeight=FontWeight.SemiBold,textAlign=TextAlign.Center,modifier=Modifier.fillMaxWidth())
@@ -500,7 +517,45 @@ fun GameScreen(p:Palette,prefs:AppPrefs,engine:GameEngine,sound:(String)->Unit,o
     }
     if(r.checkpointVisible)CheckpointDialog(p,r.pot,r.cleared,onCash={sound("click");engine.cashOut()},onKeep={sound("click");engine.keepGoing()})
     if(r.helperVisible)HelperDialog(p,helperChoices){key->sound("click");engine.chooseHelper(key)}
-    if(quitConfirm)AlertDialog(onDismissRequest={quitConfirm=false},title={Text("quit?")},text={Text("everything unbanked will be lost. saved points stay permanent.")},confirmButton={TextButton(onClick={quitConfirm=false;onQuit()}){Text("quit run")}},dismissButton={TextButton(onClick={quitConfirm=false}){Text("keep playing")}})
+    if(quitConfirm) QuitRunDialog(
+        p = p,
+        onKeep = { quitConfirm = false },
+        onQuit = { quitConfirm = false; onQuit() }
+    )
+}
+
+@Composable
+fun QuitRunDialog(p: Palette, onKeep: () -> Unit, onQuit: () -> Unit) {
+    Dialog(onDismissRequest = onKeep) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(26.dp))
+                .background(p.surface)
+                .border(1.dp, p.line, RoundedCornerShape(26.dp))
+                .padding(22.dp)
+        ) {
+            Text(
+                "quit?",
+                color = p.paper,
+                fontSize = 42.sp,
+                lineHeight = 38.sp,
+                letterSpacing = (-2).sp,
+                fontWeight = FontWeight.SemiBold
+            )
+            Spacer(Modifier.height(14.dp))
+            Text(
+                "everything unbanked will be lost.\nsaved points stay permanent.",
+                color = p.muted,
+                fontSize = 11.sp,
+                lineHeight = 17.sp
+            )
+            Spacer(Modifier.height(24.dp))
+            PillButton("←  keep playing", p, Modifier.fillMaxWidth(), filled = true, onClick = onKeep)
+            Spacer(Modifier.height(9.dp))
+            PillButton("quit run  →", p, Modifier.fillMaxWidth(), onClick = onQuit)
+        }
+    }
 }
 
 @Composable
