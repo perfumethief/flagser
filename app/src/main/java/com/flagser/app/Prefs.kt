@@ -53,11 +53,11 @@ class AppPrefs(context: Context) {
     fun setDirection(v: String) { selectedDirection = v; edit { putString("selectedDirection", v) } }
     fun setDifficulty(v: String) { selectedDifficulty = v; edit { putString("selectedDifficulty", v) } }
     fun setPhoneMode(v: String) { selectedPhoneMode = v; edit { putString("selectedPhoneMode", v) } }
-    fun setAccent(v: String) { accent = v; edit { putString("accent", v) } }
-    fun setMuted(v: Boolean) { muted = v; edit { putBoolean("muted", v) } }
-    fun setDarkMode(v: Boolean) { darkMode = v; edit { putBoolean("darkMode", v) } }
-    fun setShowGameTitle(v: Boolean) { showGameTitle = v; edit { putBoolean("showGameTitle", v) } }
-    fun setSwitchStyle(v: String) { switchStyle = v; edit { putString("switchStyle", v) } }
+    fun updateAccent(v: String) { accent = v; edit { putString("accent", v) } }
+    fun updateMuted(v: Boolean) { muted = v; edit { putBoolean("muted", v) } }
+    fun updateDarkMode(v: Boolean) { darkMode = v; edit { putBoolean("darkMode", v) } }
+    fun updateShowGameTitle(v: Boolean) { showGameTitle = v; edit { putBoolean("showGameTitle", v) } }
+    fun updateSwitchStyle(v: String) { switchStyle = v; edit { putString("switchStyle", v) } }
 
     fun phoneGatewayOwned() = "phonecodes" in unlockedModes
     fun modeOwned(key: String) = key in unlockedModes
