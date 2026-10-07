@@ -1,0 +1,38 @@
+FLÁGSER — BUILD THE ANDROID APK IN THE CLOUD
+============================================
+
+You do NOT need Android Studio.
+
+FIRST TIME ONLY
+---------------
+1. Go to github.com and sign in / make a free account.
+2. Click the + at the top-right → New repository.
+3. Repository name: flagser
+4. Choose Private if you want to keep it just for yourself.
+5. Click Create repository.
+6. Extract this ZIP on your computer.
+7. Upload the CONTENTS of the extracted folder to the new repository.
+   Important: upload all folders, including the .github folder.
+8. Commit the files.
+
+BUILD THE APK
+-------------
+1. Open your flagser repository on GitHub.
+2. Click Actions.
+3. Click "Build Flagser APK" on the left.
+4. Click Run workflow → Run workflow.
+5. When the run turns green, open it.
+6. Scroll to Artifacts.
+7. Download "flagser-apk".
+8. Unzip that small download. Inside is flagser.apk.
+9. Send flagser.apk to your Nothing Phone 2 and open it to install.
+
+NEXT TIME
+---------
+Any change pushed to the main branch also builds a fresh APK automatically.
+You can also use Actions → Build Flagser APK → Run workflow whenever you want.
+
+NOTE
+----
+Android may ask you once to allow installs from the app you used to open the APK
+(e.g. Chrome or Files). That is normal for a personal sideloaded app.
