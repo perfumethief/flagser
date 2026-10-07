@@ -192,7 +192,7 @@ class GameEngine(private val prefs: AppPrefs) {
         val pool = if (r.difficulty == "standard" && r.cleared < 20)
             FlagserData.capitals.filterKeys { it in familiarCodes }.values.toList()
         else FlagserData.capitals.values.toList()
-        val wrong = (near.shuffledSafe() + pool.shuffledSafe() + FlagserData.capitals.values.shuffledSafe()).filter { it != correct }.distinct().take(2)
+        val wrong = (near.shuffledSafe() + pool.shuffledSafe() + FlagserData.capitals.values.toList().shuffledSafe()).filter { it != correct }.distinct().take(2)
         return GameQuestion(QuestionKind.CAPITAL, "which capital?", flagEmoji(base.current.code), (listOf(correct) + wrong).shuffledSafe().map { AnswerOption(it, it) }, correct)
     }
 
