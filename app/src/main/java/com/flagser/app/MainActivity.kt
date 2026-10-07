@@ -171,7 +171,7 @@ fun MenuRow(label: String, aside: String? = null, p: Palette, onClick: () -> Uni
 @Composable
 fun MenuScreen(p: Palette, prefs: AppPrefs, sound: (String) -> Unit, onNavigate: (Screen) -> Unit) {
     Page {
-        TopBar(p, right = "pts ${prefs.points.toString().padStart(4,'0')}", muted = prefs.muted, onSound = { prefs.setMuted(!prefs.muted); sound("click") })
+        TopBar(p, right = "pts ${prefs.points.toString().padStart(4,'0')}", muted = prefs.muted, onSound = { prefs.updateMuted(!prefs.muted); sound("click") })
         Spacer(Modifier.weight(1f))
         BigTitle("flagser.", p, 86)
         Spacer(Modifier.height(48.dp))
@@ -215,7 +215,7 @@ fun OptionCard(name: String, desc: String, p: Palette, selected: Boolean, unlock
 @Composable
 fun ModesScreen(p: Palette, prefs: AppPrefs, sound: (String) -> Unit, toast: (String) -> Unit, onBack: () -> Unit, onPlay: () -> Unit) {
     Page {
-        TopBar(p, "← menu", "pts ${prefs.points.toString().padStart(4,'0')}", onBack, prefs.muted) { prefs.setMuted(!prefs.muted) }
+        TopBar(p, "← menu", "pts ${prefs.points.toString().padStart(4,'0')}", onBack, prefs.muted) { prefs.updateMuted(!prefs.muted) }
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(top = 22.dp, bottom = 28.dp)) {
             BigTitle("modes.", p)
             Text("Flags is the full ISO pool. Phone Codes appears here after the gateway is unlocked.", color = p.muted, fontSize = 10.sp, lineHeight = 16.sp, modifier = Modifier.padding(top = 18.dp))
@@ -267,7 +267,7 @@ fun UnlocksScreen(p: Palette, prefs: AppPrefs, sound: (String) -> Unit, toast: (
     var tab by remember { mutableStateOf("modes") }
     val tabs = buildList { addAll(listOf("modes","helpers","layout","sliders","study")); if (prefs.phoneGatewayOwned()) add("phone") }
     Page {
-        TopBar(p, "← menu", "pts ${prefs.points.toString().padStart(4,'0')}", onBack, prefs.muted) { prefs.setMuted(!prefs.muted) }
+        TopBar(p, "← menu", "pts ${prefs.points.toString().padStart(4,'0')}", onBack, prefs.muted) { prefs.updateMuted(!prefs.muted) }
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(top = 22.dp, bottom = 28.dp)) {
             BigTitle("unlocks.", p)
             Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(top = 28.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -301,7 +301,7 @@ fun UnlocksScreen(p: Palette, prefs: AppPrefs, sound: (String) -> Unit, toast: (
                     StoreRow("◐", "dark mode", "white on black", p) {
                         if (!prefs.darkModeUnlocked) PillButton("unlock · 1200", p, Modifier.width(126.dp)) {
                             if (prefs.buyDarkMode()) { sound("unlock"); toast("dark mode unlocked") } else toast("not enough points")
-                        } else PillButton(if (prefs.darkMode) "on" else "off", p, Modifier.width(100.dp), filled = prefs.darkMode) { prefs.setDarkMode(!prefs.darkMode); sound("click") }
+                        } else PillButton(if (prefs.darkMode) "on" else "off", p, Modifier.width(100.dp), filled = prefs.darkMode) { prefs.updateDarkMode(!prefs.darkMode); sound("click") }
                     }
                     Spacer(Modifier.height(28.dp)); SectionHeader("accent colours", "signal", p)
                     FlagserData.accents.values.forEach { a ->
@@ -309,17 +309,17 @@ fun UnlocksScreen(p: Palette, prefs: AppPrefs, sound: (String) -> Unit, toast: (
                             val owned = prefs.colorOwned(a.key); val selected = prefs.accent == a.key
                             PillButton(if (!owned) "unlock · ${a.price}" else if (selected) "selected" else "select", p, Modifier.widthIn(min = 110.dp), filled = selected) {
                                 if (!owned) { if (prefs.buyColor(a.key,a.price)) { sound("unlock"); toast("${a.name} unlocked") } else toast("not enough points") }
-                                else { prefs.setAccent(a.key); sound("click") }
+                                else { prefs.updateAccent(a.key); sound("click") }
                             }
                         }
                     }
                 }
                 "sliders" -> {
                     SectionHeader("sliders", "dark mode control", p)
-                    StoreRow("⇄","classic","default dark mode slider",p) { PillButton(if (prefs.switchStyle == "classic") "selected" else "select", p, Modifier.width(110.dp), filled = prefs.switchStyle == "classic") { prefs.setSwitchStyle("classic"); sound("click") } }
+                    StoreRow("⇄","classic","default dark mode slider",p) { PillButton(if (prefs.switchStyle == "classic") "selected" else "select", p, Modifier.width(110.dp), filled = prefs.switchStyle == "classic") { prefs.updateSwitchStyle("classic"); sound("click") } }
                     StoreRow("◫","new slider","mini premium rocker · warm yellow LED",p) {
                         if (!prefs.newSliderUnlocked) PillButton("unlock · 1400",p,Modifier.width(126.dp)) { if (prefs.buyNewSlider()) { sound("unlock"); toast("new slider unlocked") } else toast("not enough points") }
-                        else PillButton(if (prefs.switchStyle == "neo") "selected" else "select",p,Modifier.width(110.dp),filled = prefs.switchStyle == "neo") { prefs.setSwitchStyle("neo"); sound("click") }
+                        else PillButton(if (prefs.switchStyle == "neo") "selected" else "select",p,Modifier.width(110.dp),filled = prefs.switchStyle == "neo") { prefs.updateSwitchStyle("neo"); sound("click") }
                     }
                 }
                 "study" -> {
@@ -374,7 +374,7 @@ fun StoreRow(icon: String, name: String, desc: String, p: Palette, iconColor: Co
 @Composable
 fun StudyHubScreen(p: Palette, prefs: AppPrefs, sound: (String) -> Unit, toast: (String) -> Unit, onBack: () -> Unit, onOpen: (String) -> Unit, onUnlocks: () -> Unit) {
     Page {
-        TopBar(p,"← menu","pts ${prefs.points.toString().padStart(4,'0')}",onBack,prefs.muted){ prefs.setMuted(!prefs.muted) }
+        TopBar(p,"← menu","pts ${prefs.points.toString().padStart(4,'0')}",onBack,prefs.muted){ prefs.updateMuted(!prefs.muted) }
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(top=22.dp,bottom=28.dp)) {
             BigTitle("study.",p)
             Spacer(Modifier.height(36.dp)); SectionHeader("flags","learn before you play",p); Spacer(Modifier.height(10.dp))
@@ -413,7 +413,7 @@ fun StudyReaderScreen(p: Palette, prefs: AppPrefs, moduleKey: String, sound: (St
     val isFlags=module.family=="flags"; val guide=module.type=="guide"; val fDeck=if(isFlags)flagDeck() else emptyList(); val pDeck=if(!isFlags)phoneDeck() else emptyList(); val count=if(isFlags)fDeck.size else pDeck.size
     val filters=if(isFlags)listOf("all" to "all flags","opening" to "opening","familiar" to "familiar","world" to "world","obscure" to "obscure") else listOf("all" to "all","international" to "international","domestic" to "domestic")
     Page {
-        TopBar(p,"← study","pts ${prefs.points.toString().padStart(4,'0')}",onBack,prefs.muted){prefs.setMuted(!prefs.muted)}
+        TopBar(p,"← study","pts ${prefs.points.toString().padStart(4,'0')}",onBack,prefs.muted){prefs.updateMuted(!prefs.muted)}
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(top=22.dp,bottom=28.dp)){
             BigTitle("${module.name}.",p,58)
             Text(if(isFlags) if(guide)"browse the flag and country together at your own pace" else "look at the flag, recall the country, then flip" else if(guide)"browse the code and country together at your own pace" else "look at the code, recall the country, then flip",color=p.muted,fontSize=10.sp,lineHeight=15.sp,modifier=Modifier.padding(top=18.dp))
@@ -450,12 +450,12 @@ fun StudyGuideCard(p: Palette, isFlags: Boolean, item: Any, modifier: Modifier =
 fun SettingsScreen(p: Palette, prefs: AppPrefs, sound:(String)->Unit, toast:(String)->Unit, onBack:()->Unit){
     var code by remember{mutableStateOf("")}; var country by remember{mutableStateOf("")}; var confirmReset by remember{mutableStateOf(false)}
     Page{
-        TopBar(p,"← menu","pts ${prefs.points.toString().padStart(4,'0')}",onBack,prefs.muted){prefs.setMuted(!prefs.muted)}
+        TopBar(p,"← menu","pts ${prefs.points.toString().padStart(4,'0')}",onBack,prefs.muted){prefs.updateMuted(!prefs.muted)}
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(top=22.dp,bottom=28.dp)){
             BigTitle("settings.",p)
             Spacer(Modifier.height(30.dp))
-            SettingRow("sound","native click / correct / wrong tones",p){PillButton(if(prefs.muted)"off" else "on",p,Modifier.width(100.dp),filled=!prefs.muted){prefs.setMuted(!prefs.muted);sound("click")}}
-            SettingRow("game title","show “which country?”, “which capital?”, etc.",p){PillButton(if(prefs.showGameTitle)"on" else "off",p,Modifier.width(100.dp),filled=prefs.showGameTitle){prefs.setShowGameTitle(!prefs.showGameTitle);sound("click")}}
+            SettingRow("sound","native click / correct / wrong tones",p){PillButton(if(prefs.muted)"off" else "on",p,Modifier.width(100.dp),filled=!prefs.muted){prefs.updateMuted(!prefs.muted);sound("click")}}
+            SettingRow("game title","show “which country?”, “which capital?”, etc.",p){PillButton(if(prefs.showGameTitle)"on" else "off",p,Modifier.width(100.dp),filled=prefs.showGameTitle){prefs.updateShowGameTitle(!prefs.showGameTitle);sound("click")}}
             SettingRow("prototype credit","for testing expensive unlocks",p){PillButton("+ 25,000 pts",p,Modifier.width(132.dp)){prefs.addPoints(25000);sound("unlock");toast("+25,000 prototype pts")}}
             SettingRow("reset progress","points, unlocks, modes and colour",p){PillButton("reset",p,Modifier.width(100.dp)){confirmReset=true}}
             Spacer(Modifier.height(32.dp));SectionHeader("domestic phone codes","custom",p);Spacer(Modifier.height(12.dp))
@@ -482,7 +482,7 @@ fun GameScreen(p:Palette,prefs:AppPrefs,engine:GameEngine,sound:(String)->Unit,o
     val q=r.question
     val helperChoices=remember(r.helperVisible,r.cleared){if(r.helperVisible)engine.helperChoices() else emptyList()}
     Page{
-        TopBar(p,"flagser / quit","saved ${prefs.points.toString().padStart(4,'0')}",{quitConfirm=true},prefs.muted){prefs.setMuted(!prefs.muted)}
+        TopBar(p,"flagser / quit","saved ${prefs.points.toString().padStart(4,'0')}",{quitConfirm=true},prefs.muted){prefs.updateMuted(!prefs.muted)}
         Row(Modifier.fillMaxWidth().padding(top=14.dp),horizontalArrangement=Arrangement.SpaceBetween){Text("pot ${r.pot.toString().padStart(3,'0')}",color=p.muted,fontSize=9.sp);Text("${(r.cleared+1).coerceAtMost(r.total).toString().padStart(3,'0')} / ${r.total}",color=p.muted,fontSize=9.sp);Text("${engine.rate()} pts",color=p.muted,fontSize=9.sp)}
         Spacer(Modifier.height(8.dp))
         if(prefs.showGameTitle && q!=null)Text(q.title,color=p.paper,fontSize=52.sp,lineHeight=46.sp,letterSpacing=(-3).sp,fontWeight=FontWeight.SemiBold,textAlign=TextAlign.Center,modifier=Modifier.fillMaxWidth())
@@ -516,4 +516,4 @@ fun CheckpointDialog(p:Palette,pot:Int,cleared:Int,onCash:()->Unit,onKeep:()->Un
 fun HelperDialog(p:Palette,choices:List<HelperItem>,onChoose:(String)->Unit){ AlertDialog(onDismissRequest={},containerColor=p.surface,title={Text("choose one",color=p.paper,fontSize=40.sp,letterSpacing=(-2).sp)},text={Column{Text("a random Helper joins this run",color=p.muted,fontSize=10.sp);Spacer(Modifier.height(14.dp));choices.forEach{h->Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).border(1.dp,p.line,RoundedCornerShape(16.dp)).clickable{onChoose(h.key)}.padding(14.dp),horizontalAlignment=Alignment.CenterHorizontally){Text(h.emoji,fontSize=28.sp);Text(h.name,color=p.paper,fontSize=15.sp);Text(h.copy,color=p.muted,fontSize=9.sp,textAlign=TextAlign.Center)};Spacer(Modifier.height(8.dp))}}},confirmButton={}) }
 
 @Composable
-fun EndScreen(p:Palette,prefs:AppPrefs,result:ResultState?,sound:(String)->Unit,onAgain:()->Unit,onMenu:()->Unit){ val r=result ?: ResultState("result","0","");Page{TopBar(p,right="pts ${prefs.points.toString().padStart(4,'0')}",muted=prefs.muted,onSound={prefs.setMuted(!prefs.muted)});Spacer(Modifier.weight(1f));Column(Modifier.fillMaxWidth(),horizontalAlignment=Alignment.CenterHorizontally){Text(r.kicker.uppercase(),color=p.muted,fontSize=9.sp,letterSpacing=1.2.sp);Text(r.score,color=p.paper,fontSize=96.sp,letterSpacing=(-6).sp,fontWeight=FontWeight.SemiBold);Text(r.copy,color=p.muted,fontSize=11.sp,lineHeight=17.sp,textAlign=TextAlign.Center);Spacer(Modifier.height(26.dp));PillButton("play again",p,Modifier.width(230.dp),filled=true){sound("click");onAgain()};Spacer(Modifier.height(9.dp));PillButton("menu",p,Modifier.width(230.dp)){sound("click");onMenu()}};Spacer(Modifier.weight(1f))} }
+fun EndScreen(p:Palette,prefs:AppPrefs,result:ResultState?,sound:(String)->Unit,onAgain:()->Unit,onMenu:()->Unit){ val r=result ?: ResultState("result","0","");Page{TopBar(p,right="pts ${prefs.points.toString().padStart(4,'0')}",muted=prefs.muted,onSound={prefs.updateMuted(!prefs.muted)});Spacer(Modifier.weight(1f));Column(Modifier.fillMaxWidth(),horizontalAlignment=Alignment.CenterHorizontally){Text(r.kicker.uppercase(),color=p.muted,fontSize=9.sp,letterSpacing=1.2.sp);Text(r.score,color=p.paper,fontSize=96.sp,letterSpacing=(-6).sp,fontWeight=FontWeight.SemiBold);Text(r.copy,color=p.muted,fontSize=11.sp,lineHeight=17.sp,textAlign=TextAlign.Center);Spacer(Modifier.height(26.dp));PillButton("play again",p,Modifier.width(230.dp),filled=true){sound("click");onAgain()};Spacer(Modifier.height(9.dp));PillButton("menu",p,Modifier.width(230.dp)){sound("click");onMenu()}};Spacer(Modifier.weight(1f))} }
