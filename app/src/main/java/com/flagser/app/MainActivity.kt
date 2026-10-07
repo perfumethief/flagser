@@ -31,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -283,8 +284,15 @@ fun UnlocksScreen(p: Palette, prefs: AppPrefs, sound: (String) -> Unit, toast: (
         TopBar(p, "← menu", "pts ${prefs.points.toString().padStart(4,'0')}", onBack, prefs.muted) { prefs.updateMuted(!prefs.muted) }
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(top = 22.dp, bottom = 28.dp)) {
             BigTitle("unlocks.", p)
-            Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(top = 28.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                tabs.forEach { t -> PillButton(t, p, Modifier.widthIn(min = 95.dp), filled = tab == t) { sound("click"); tab = t } }
+            Column(Modifier.fillMaxWidth().padding(top = 28.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                tabs.chunked(2).forEach { pair ->
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        pair.forEach { t ->
+                            PillButton(t, p, Modifier.weight(1f), filled = tab == t) { sound("click"); tab = t }
+                        }
+                        if (pair.size == 1) Spacer(Modifier.weight(1f))
+                    }
+                }
             }
             Spacer(Modifier.height(34.dp))
             when (tab) {
@@ -312,9 +320,29 @@ fun UnlocksScreen(p: Palette, prefs: AppPrefs, sound: (String) -> Unit, toast: (
                 "layout" -> {
                     SectionHeader("dark mode", "theme", p)
                     StoreRow("◐", "dark mode", "white on black", p) {
-                        if (!prefs.darkModeUnlocked) PillButton("unlock · 1200", p, Modifier.width(126.dp)) {
-                            if (prefs.buyDarkMode()) { sound("unlock"); toast("dark mode unlocked") } else toast("not enough points")
-                        } else PillButton(if (prefs.darkMode) "on" else "off", p, Modifier.width(100.dp), filled = prefs.darkMode) { prefs.updateDarkMode(!prefs.darkMode); sound("click") }
+                        if (!prefs.darkModeUnlocked) {
+                            PillButton("unlock · 1200", p, Modifier.width(126.dp)) {
+                                if (prefs.buyDarkMode()) { sound("unlock"); toast("dark mode unlocked") } else toast("not enough points")
+                            }
+                        } else if (prefs.switchStyle == "neo" && prefs.newSliderUnlocked) {
+                            PremiumRockerSwitch(
+                                checked = prefs.darkMode,
+                                p = p,
+                                onToggle = {
+                                    prefs.updateDarkMode(!prefs.darkMode)
+                                    sound("click")
+                                }
+                            )
+                        } else {
+                            ClassicSwitch(
+                                checked = prefs.darkMode,
+                                p = p,
+                                onToggle = {
+                                    prefs.updateDarkMode(!prefs.darkMode)
+                                    sound("click")
+                                }
+                            )
+                        }
                     }
                     Spacer(Modifier.height(28.dp)); SectionHeader("accent colours", "signal", p)
                     FlagserData.accents.values.forEach { a ->
@@ -329,11 +357,39 @@ fun UnlocksScreen(p: Palette, prefs: AppPrefs, sound: (String) -> Unit, toast: (
                 }
                 "sliders" -> {
                     SectionHeader("sliders", "dark mode control", p)
-                    StoreRow("⇄","classic","default dark mode slider",p) { PillButton(if (prefs.switchStyle == "classic") "selected" else "select", p, Modifier.width(110.dp), filled = prefs.switchStyle == "classic") { prefs.updateSwitchStyle("classic"); sound("click") } }
-                    StoreRow("◫","new slider","mini premium rocker · warm yellow LED",p) {
-                        if (!prefs.newSliderUnlocked) PillButton("unlock · 1400",p,Modifier.width(126.dp)) { if (prefs.buyNewSlider()) { sound("unlock"); toast("new slider unlocked") } else toast("not enough points") }
-                        else PillButton(if (prefs.switchStyle == "neo") "selected" else "select",p,Modifier.width(110.dp),filled = prefs.switchStyle == "neo") { prefs.updateSwitchStyle("neo"); sound("click") }
-                    }
+                    SliderStyleCard(
+                        title = "classic",
+                        copy = "default clean switch",
+                        selected = prefs.switchStyle == "classic",
+                        p = p,
+                        preview = { ClassicSwitch(checked = true, p = p, onToggle = {}) },
+                        action = {
+                            prefs.updateSwitchStyle("classic")
+                            sound("click")
+                        }
+                    )
+                    Spacer(Modifier.height(10.dp))
+                    SliderStyleCard(
+                        title = "new slider",
+                        copy = "mini premium 3D rocker · warm yellow LED",
+                        selected = prefs.switchStyle == "neo",
+                        locked = !prefs.newSliderUnlocked,
+                        price = 1400,
+                        p = p,
+                        preview = { PremiumRockerSwitch(checked = true, p = p, enabled = prefs.newSliderUnlocked, onToggle = {}) },
+                        action = {
+                            if (!prefs.newSliderUnlocked) {
+                                if (prefs.buyNewSlider()) {
+                                    prefs.updateSwitchStyle("neo")
+                                    sound("unlock")
+                                    toast("new slider unlocked")
+                                } else toast("not enough points")
+                            } else {
+                                prefs.updateSwitchStyle("neo")
+                                sound("click")
+                            }
+                        }
+                    )
                 }
                 "study" -> {
                     SectionHeader("flags", "study material", p)
@@ -366,6 +422,133 @@ fun StudyUnlockRow(key: String, p: Palette, prefs: AppPrefs, sound: (String) -> 
         PillButton(if (blocked) "phone codes first" else if (owned) "owned" else "unlock · ${s.price}",p,Modifier.widthIn(min = 120.dp),filled = owned,enabled = !blocked) {
             if (owned) toast("already owned") else if (prefs.buyStudy(key,s.price)) { sound("unlock"); toast("${s.name} unlocked") } else toast("not enough points")
         }
+    }
+}
+
+@Composable
+fun ClassicSwitch(
+    checked: Boolean,
+    p: Palette,
+    enabled: Boolean = true,
+    onToggle: () -> Unit
+) {
+    val track = if (checked) p.paper else p.surface2
+    val knob = if (checked) p.inverse else p.paper
+    Box(
+        Modifier
+            .width(62.dp)
+            .height(34.dp)
+            .clip(RoundedCornerShape(999.dp))
+            .background(track)
+            .border(1.dp, p.line, RoundedCornerShape(999.dp))
+            .clickable(enabled = enabled) { onToggle() }
+            .padding(4.dp)
+    ) {
+        Box(
+            Modifier
+                .align(if (checked) Alignment.CenterEnd else Alignment.CenterStart)
+                .size(26.dp)
+                .clip(CircleShape)
+                .background(knob)
+                .border(1.dp, p.line, CircleShape)
+        )
+    }
+}
+
+@Composable
+fun PremiumRockerSwitch(
+    checked: Boolean,
+    p: Palette,
+    enabled: Boolean = true,
+    onToggle: () -> Unit
+) {
+    val warmLed = Color(0xFFFFD56A)
+    val body = if (p.bg.luminance() < .5f) Color(0xFF151617) else Color(0xFFD8D2C8)
+    val rocker = if (p.bg.luminance() < .5f) Color(0xFF232527) else Color(0xFFE9E4DA)
+    Box(
+        Modifier
+            .width(76.dp)
+            .height(42.dp)
+            .clip(RoundedCornerShape(13.dp))
+            .background(body)
+            .border(1.dp, p.line, RoundedCornerShape(13.dp))
+            .clickable(enabled = enabled) { onToggle() }
+            .padding(4.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Row(
+            Modifier
+                .fillMaxSize()
+                .clip(RoundedCornerShape(10.dp))
+                .background(rocker)
+                .border(1.dp, if (checked) warmLed.copy(alpha = .34f) else p.line, RoundedCornerShape(10.dp)),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .background(if (checked) Color.Black.copy(alpha = .12f) else Color.Transparent)
+            )
+            Box(
+                Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .background(if (!checked) Color.Black.copy(alpha = .12f) else Color.Transparent)
+            )
+        }
+        Box(
+            Modifier
+                .align(if (checked) Alignment.CenterEnd else Alignment.CenterStart)
+                .padding(horizontal = 11.dp)
+                .size(7.dp)
+                .clip(CircleShape)
+                .background(if (checked) warmLed else p.muted.copy(alpha = .28f))
+                .border(1.dp, if (checked) warmLed.copy(alpha = .65f) else p.line, CircleShape)
+        )
+        Text(
+            if (checked) "I" else "O",
+            color = if (checked) warmLed.copy(alpha = .82f) else p.muted,
+            fontSize = 8.sp,
+            modifier = Modifier.align(if (checked) Alignment.CenterStart else Alignment.CenterEnd).padding(horizontal = 11.dp)
+        )
+    }
+}
+
+@Composable
+fun SliderStyleCard(
+    title: String,
+    copy: String,
+    selected: Boolean,
+    p: Palette,
+    preview: @Composable () -> Unit,
+    action: () -> Unit,
+    locked: Boolean = false,
+    price: Int = 0
+) {
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .background(p.surface)
+            .border(1.dp, if (selected) p.paper.copy(alpha = .55f) else p.line, RoundedCornerShape(20.dp))
+            .padding(16.dp)
+    ) {
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text(title, color = p.paper, fontSize = 16.sp)
+                Text(copy, color = p.muted, fontSize = 8.sp, lineHeight = 12.sp)
+            }
+            preview()
+        }
+        Spacer(Modifier.height(14.dp))
+        PillButton(
+            if (locked) "unlock · $price" else if (selected) "selected" else "select",
+            p,
+            Modifier.fillMaxWidth(),
+            filled = selected && !locked,
+            onClick = action
+        )
     }
 }
 
