@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'app/**'
+      - 'tools/**'
       - 'build.gradle'
       - 'settings.gradle'
       - 'gradle.properties'
@@ -34,6 +35,8 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.10.2'
+      - name: Fix embedded Settings API bridge
+        run: python3 tools/patch_android_settings_bridge.py
       - name: Build debug APK
         run: gradle --no-daemon :app:assembleDebug
       - uses: actions/upload-artifact@v4
