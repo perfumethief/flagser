@@ -47,6 +47,8 @@ jobs:
         run: python3 tools/patch_float_mode_0520.py app/src/main/assets/veilradio.html
       - name: Make Signal scrollable with a compact depth slider
         run: python3 tools/patch_radio_signal_0521.py app/src/main/assets/veilradio.html
+      - name: Keep the Signal overlay scrollable on phones
+        run: python3 tools/patch_mobile_signal_scroll_0521.py app/src/main/assets/veilradio.html
       - name: Prefetch similar Float songs while playing
         run: python3 tools/patch_float_prefetch_0521.py app/src/main/assets/float.html
       - name: Build debug APK
