@@ -106,6 +106,9 @@ public final class NativeService{
  private JSONObject discover(JSONObject data)throws Exception{
  if(key==null||key.isEmpty())throw new ApiError(401,"Connect your OpenAI key in Settings / API.");
  String mode=data.optString("mode","signal"),signal=str(data,"signal"),seed=str(data,"seed");
+ int depth=Math.max(0,Math.min(100,data.optInt("depth",78)));
+ int round=Math.max(0,Math.min(10000,data.optInt("round",0)));
+ String depthGuide=depth>=85?"Extremely obscure real recordings from small labels, local scenes and deep cuts; avoid familiar artists and algorithm staples.":depth>=65?"Underground music: regional micro-scenes, unusual collaborators, underheard songs and small independent artists. Avoid chart hits.":depth>=40?"Seek hidden gems, small-label releases and less obvious stylistic neighbours.":depth>=20?"Mix accessible songs with leftfield releases and underrated artists.":"Prefer approachable, recognizable recordings that genuinely fit the listener's taste.";
  if(!Arrays.asList("signal","seed","drift","artists").contains(mode))throw new ApiError(400,"Unsupported discovery mode.");
  if(signal.isEmpty()&&seed.isEmpty())throw new ApiError(400,"Add an artist, song or sound description.");
  if(signal.length()>500)signal=signal.substring(0,500);if(seed.length()>140)seed=seed.substring(0,140);
@@ -117,7 +120,7 @@ public final class NativeService{
  String prompt=mode.equals("artists")?
  "Radio blending the listener's preferred artists: "+signal+". Recommend connected artists, influences, collaborations and compatible tracks.":
  "Mode "+mode+". Signal "+signal+". Starting artist, song, or concept "+seed+".";
- prompt+=" Loved: "+loved+". Passed: "+passed+". Avoid categorized songs. Return 18 new real tracks.";
+ prompt+=" DISCOVERY DEPTH "+depth+"/100: "+depthGuide+" New continuation batch #"+(round+1)+". "+str(data,"refillHint")+" Loved: "+loved+". Passed: "+passed+". Avoid classified and already-queued recordings. Return 18 fresh real tracks, with precise artist and title strings.";
  JSONArray ideas=ai(key,system,prompt,1900).optJSONArray("candidates");
  if(ideas==null)throw new ApiError(502,"AI returned no music suggestions.");
  Set<String> ids=new HashSet<>(),names=new HashSet<>(),seen=new HashSet<>();
