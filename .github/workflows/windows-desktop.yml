@@ -28,6 +28,11 @@ jobs:
           python tools/fix_android_tab_navigation.py
           python tools/fix_native_bridge_0517.py
           python tools/prepare_windows_desktop.py
+      - name: Enable endless discovery with niche depth slider
+        run: python tools/patch_desktop_discovery_0519.py
+      - name: Check desktop API syntax
+        working-directory: desktop
+        run: node --check api.js
       - name: Install desktop dependencies
         working-directory: desktop
         run: npm install --no-audit --no-fund
@@ -38,7 +43,7 @@ jobs:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
       - uses: actions/upload-artifact@v4
         with:
-          name: Veilradio-Windows-Desktop-05.18
+          name: Veilradio-Windows-Desktop-05.19
           path: desktop/dist/*.exe
           if-no-files-found: error
           retention-days: 30
