@@ -35,6 +35,10 @@ jobs:
         run: |
           python -c "import shutil; shutil.copyfile('app/src/main/assets/float.html', 'desktop/assets/float.html')"
           python tools/patch_float_mode_0520.py desktop/assets/veilradio.html
+      - name: Make Signal scrollable with a compact depth slider
+        run: python tools/patch_radio_signal_0521.py desktop/assets/veilradio.html
+      - name: Prefetch similar Float songs while playing
+        run: python tools/patch_float_prefetch_0521.py desktop/assets/float.html
       - name: Check desktop API syntax
         working-directory: desktop
         run: node --check api.js
@@ -48,7 +52,7 @@ jobs:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
       - uses: actions/upload-artifact@v4
         with:
-          name: Veilradio-Windows-Desktop-05.20
+          name: Veilradio-Windows-Desktop-05.21
           path: desktop/dist/*.exe
           if-no-files-found: error
           retention-days: 30
