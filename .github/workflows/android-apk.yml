@@ -37,6 +37,8 @@ jobs:
           gradle-version: '8.10.2'
       - name: Fix embedded Settings API bridge
         run: python3 tools/patch_android_settings_bridge.py
+      - name: Fix intermittent tab navigation
+        run: python3 tools/fix_android_tab_navigation.py
       - name: Build debug APK
         run: gradle --no-daemon :app:assembleDebug
       - uses: actions/upload-artifact@v4
