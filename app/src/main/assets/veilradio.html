@@ -1127,7 +1127,42 @@ function playlistsPage(){
 }
 function optionGroup(group,choices,value){return `<div class="vOptions">${choices.map(([id,label])=>`<button class="vOption ${id===value?'selected':''}" data-setting="${group}" data-value="${id}" aria-pressed="${id===value}">${label}</button>`).join('')}</div>`}
 function settingsPage(){return '<iframe id="vSettingsFrame" class="vSettingsFrame" title="Settings atelier 05.5" referrerpolicy="no-referrer"></iframe>';}
-function renderPage(){page.dataset.view=state.page;page.innerHTML=state.page==='saved'?savedPage():state.page==='player'?playerPage():state.page==='playlists'?playlistsPage():settingsPage();if(state.page==='player'){updateAudioStatus();requestAnimationFrame(updateTitleMarquee)};if(state.page==='settings'){const fr=qs('#vSettingsFrame');if(fr)fr.srcdoc=fixedSettingsDocument.replace('</head>','<style>html,body,*{scrollbar-width:none!important;-ms-overflow-style:none!important}*::-webkit-scrollbar{display:none!important;width:0!important;height:0!important}</style></head>');}}
+function renderPage(){
+ page.dataset.view=state.page;
+ page.innerHTML=state.page==='saved'?savedPage():state.page==='player'?playerPage():state.page==='playlists'?playlistsPage():settingsPage();
+ if(state.page==='player'){updateAudioStatus();requestAnimationFrame(updateTitleMarquee)}
+ if(state.page==='settings'){
+  const fr=qs('#vSettingsFrame');
+  if(fr){
+   fr.addEventListener('load',()=>{
+    const w=fr.contentWindow;if(!w||!w.document)return;
+    const original=w.fetch.bind(w);
+    w.fetch=function(input,opts={}){
+     let u;try{u=new URL(typeof input==='string'?input:input.url,w.location.href)}catch(e){return original(input,opts)}
+     if(!u.pathname.startsWith('/api/'))return original(input,opts);
+     if(u.pathname==='/api/connect'){
+      let data={};try{data=JSON.parse(opts.body||'{}')}catch(e){}
+      data.remember=!!w.document.getElementById('apiRememberKey')?.checked;
+      opts={...opts,body:JSON.stringify(data)};
+     }
+     return window.__veilBridgeRequest(u.pathname+u.search,opts);
+    };
+    const addSaveChoice=()=>{
+     const connect=w.document.querySelector('[data-api="connect"]');
+     if(!connect||w.document.getElementById('apiRememberKey'))return;
+     const label=w.document.createElement('label');label.id='apiRememberRow';
+     label.style.cssText='display:flex;align-items:center;gap:10px;margin:12px 0;font-family:monospace;font-size:11px;cursor:pointer';
+     label.innerHTML='<input type="checkbox" id="apiRememberKey" style="width:18px;height:18px;accent-color:#857184"> SAVE KEY ON THIS DEVICE';
+     connect.parentElement.parentNode.insertBefore(label,connect.parentElement);
+    };
+    const obs=new w.MutationObserver(addSaveChoice);
+    obs.observe(w.document.body,{childList:true,subtree:true});
+    addSaveChoice();
+   },{once:true});
+   fr.srcdoc=fixedSettingsDocument.replace('</head>','<style>html,body,*{scrollbar-width:none!important;-ms-overflow-style:none!important}*::-webkit-scrollbar{display:none!important;width:0!important;height:0!important}</style></head>');
+  }
+ }
+}
 function openDiscoveryGateway(){openFocus('gateway',{title:'follow the signal.'});focus.dataset.mode='gateway';qs('#veilFocusForm').style.display='none';qs('#veilFocusHint').textContent='CHOOSE HOW TO BEGIN';qs('#veilFocusResults').innerHTML='<button class="vMatch" data-gateway="signal"><strong>describe a sound.</strong><small>500 CHARACTERS · A MOOD OR A MOMENT</small></button><button class="vMatch" data-gateway="addDeezer"><strong>song / link.</strong><small>SEARCH DEEZER OR PASTE A TRACK URL</small></button><button class="vMatch" data-gateway="drift"><strong>link drift.</strong><small>EXPLORE CONNECTED MUSIC CONCEPTS</small></button>';
 qa('[data-gateway]',qs('#veilFocusResults')).forEach(b=>b.addEventListener('click',()=>{if(b.dataset.gateway==='drift')openLinkDrift('Young Thug',true);else openFocus(b.dataset.gateway)}));}
 function openLinkDrift(name,reset=false){if(reset)driftTrail=[];let node=veilExpGraph[name]||{type:'IDEA / LINK DRIFT',note:'Choose a connection and follow where it leads.',links:['Young Thug','melodic rap','Bladee']};driftTrail.push(name);openFocus('drift',{title:name.toLowerCase()+'.'});qs('#veilFocusForm').style.display='none';qs('#veilFocusIndex').textContent='VEILRADIO / LINK DRIFT / '+node.type;qs('#veilFocusHint').textContent=node.note;qs('#veilFocusResults').innerHTML=node.links.map(n=>'<button type="button" class="vMatch" data-drift="'+h(n)+'"><strong>'+h(n.toLowerCase())+'.</strong><small>FOLLOW THIS CONNECTION →</small></button>').join('')+'<div class="vOptions" style="margin-top:8px"><button class="vSmallBtn" data-drift-back>← PREVIOUS</button><button class="vSmallBtn" data-drift-reset>RESET TRAIL</button></div>';
@@ -1368,9 +1403,9 @@ async function liveRequest(path,opts={}){
  const ctl=new AbortController(),tid=setTimeout(()=>ctl.abort(),90000);
  try{
   const res=await fetch(path,{...opts,signal:ctl.signal,cache:'no-store',headers:{...(opts.body?{'Content-Type':'application/json'}:{}),...(opts.headers||{})}});
-  let d;try{d=await res.json()}catch(_){throw new Error('The server did not return JSON. Start Veilradio using start_veilradio.bat.')}
+  let d;try{d=await res.json()}catch(_){throw new Error('The Android app returned an invalid response.')}
   if(!res.ok)throw new Error(d.error||'Request failed ('+res.status+').');return d;
- }catch(e){if(e.name==='AbortError')throw new Error('The request timed out. Try again.');if(e instanceof TypeError)throw new Error('Local server not running. Double-click start_veilradio.bat.');throw e}
+ }catch(e){if(e.name==='AbortError')throw new Error('The request timed out. Try again.');if(e instanceof TypeError)throw new Error('Android service unavailable. Restart the app.');throw e}
  finally{clearTimeout(tid)}
 }
 function livePost(path,obj){return liveRequest(path,{method:'POST',body:JSON.stringify(obj)})}
