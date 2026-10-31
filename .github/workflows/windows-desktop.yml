@@ -5,7 +5,8 @@ on:
     branches: [main]
     paths:
       - 'desktop/**'
-      - 'tools/prepare_windows_desktop.py'
+      - 'tools/**'
+      - 'app/src/main/assets/float.html'
       - '.github/workflows/windows-desktop.yml'
 permissions:
   contents: read
@@ -30,6 +31,10 @@ jobs:
           python tools/prepare_windows_desktop.py
       - name: Enable endless discovery with niche depth slider
         run: python tools/patch_desktop_discovery_0519.py
+      - name: Integrate Float Mode into Windows
+        run: |
+          python -c "import shutil; shutil.copyfile('app/src/main/assets/float.html', 'desktop/assets/float.html')"
+          python tools/patch_float_mode_0520.py desktop/assets/veilradio.html
       - name: Check desktop API syntax
         working-directory: desktop
         run: node --check api.js
@@ -43,7 +48,7 @@ jobs:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
       - uses: actions/upload-artifact@v4
         with:
-          name: Veilradio-Windows-Desktop-05.19
+          name: Veilradio-Windows-Desktop-05.20
           path: desktop/dist/*.exe
           if-no-files-found: error
           retention-days: 30
