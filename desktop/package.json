@@ -1,0 +1,12 @@
+{
+  "name":"veilradio-desktop","productName":"Veilradio","version":"0.5.18",
+  "description":"A softer listening room for Windows.","private":true,
+  "main":"main.js","license":"UNLICENSED",
+  "scripts":{"start":"electron .","dist:windows":"electron-builder --win portable --publish never"},
+  "devDependencies":{"electron":"^35.7.5","electron-builder":"^26.0.12"},
+  "build":{"appId":"studio.veilradio.desktop","productName":"Veilradio",
+    "artifactName":"Veilradio-Desktop-0.5.18.${ext}","directories":{"output":"dist"},
+    "files":["assets/**","build/icon.ico","main.js","preload.js","api.js","package.json"],
+    "win":{"icon":"build/icon.ico","target":[{"target":"portable","arch":["x64"]}]},
+    "asar":true}
+}
