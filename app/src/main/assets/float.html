@@ -83,6 +83,23 @@ button:focus-visible,.float-card:focus-visible{outline:2px solid #998595;outline
 .embedded #floatExit{display:inline-flex}
 #floatExit{display:none;border:1px solid #b8aeb8;border-radius:99px;background:#ffffffb8;padding:9px 15px;font-size:11px;letter-spacing:.08em;color:#514552;cursor:pointer;white-space:nowrap}
 @media(max-width:650px){#floatExit{padding:8px 11px;font-size:10px}.topright{gap:10px}.embedded .mast{padding-inline:13px}.embedded .logo{font-size:30px}.embedded .stateword{display:none}}
+
+/* VEILRADIO 05.22 DEEZER ENTRYPOINT */
+.float-entry{position:fixed;inset:0;z-index:2000;background:linear-gradient(130deg,#ede7eaca,#f5f2f3ee);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);display:none;justify-content:center;align-items:center;overflow-y:auto;overscroll-behavior:contain;padding:24px;box-sizing:border-box;}
+.float-entry.open{display:flex}.float-entry-paper{width:min(100%,820px);max-height:100%;overflow-y:auto;padding:clamp(22px,4.6vw,58px);border-radius:20px;border:1px solid #ffffffd9;background:linear-gradient(135deg,#ffffffc9,#eae0e7e8);box-shadow:0 28px 80px #68546930;box-sizing:border-box;scrollbar-width:none}
+.float-entry-top{display:flex;align-items:center;justify-content:space-between;font:12px/1.3 ui-monospace,monospace;letter-spacing:.1em;color:#685a69}.float-entry-top button{border:0;background:none;color:#4d4050;font:29px Georgia,serif;cursor:pointer}
+.float-entry-index{margin:28px 0 5px;color:#867789;font:12px ui-monospace,monospace;letter-spacing:.08em}.float-entry h2{font:normal clamp(58px,9vw,118px)/.9 Georgia,serif;letter-spacing:-.05em;color:#433848;margin:0 0 20px}.float-entry h2 em{font-weight:normal;color:#a18c9f}
+.float-entry-help,.float-entry-note{font:11px/1.6 ui-monospace,monospace;color:#8d7c8b;letter-spacing:.06em}
+#floatEntryForm{display:flex;flex-direction:column;gap:14px;margin:20px 0}#floatEntryInput{width:100%;box-sizing:border-box;border:1px solid #aa9aaa88;border-radius:12px;background:#fffbfe86;resize:none;outline:0;padding:24px 18px;color:#453b48;font:clamp(22px,3.6vw,35px)/1.1 Georgia,serif;min-height:96px;box-shadow:0 10px 25px #6f5a7320}#floatEntryInput:focus{border-color:#746277}
+#floatEntrySubmit{cursor:pointer;background:#635464;color:#fff;border:1px solid #635464;border-radius:999px;padding:16px;font:12px ui-monospace,monospace;letter-spacing:.09em}
+.float-entry-results{display:flex;flex-direction:column;gap:8px;margin:15px 0 18px;max-height:38dvh;overflow:auto;scrollbar-width:none}
+.float-entry-hit{display:flex;justify-content:space-between;align-items:center;text-align:left;padding:15px 17px;border:1px solid #bcb0be99;background:#fffcff70;border-radius:12px;color:#514352;cursor:pointer;gap:15px;}
+.float-entry-hit strong{font:normal 23px/1.1 Georgia,serif;display:block}.float-entry-hit small{font:10px/1.5 ui-monospace,monospace;display:block;margin-top:5px;color:#867584}.float-entry-hit:hover{background:#ffffffde;border-color:#8b7689}
+.float-entry-hit span:last-child{font:10px ui-monospace,monospace;white-space:nowrap}
+.float-card .mini{width:34px!important;height:34px!important;border:1px solid #ad9fac80!important;background:#fffeff7d!important}
+.float-card .mini svg{width:18px!important;height:18px!important}.float-card .mini svg.playIcon{width:16px!important;height:16px!important}
+#floatBackGlyph{position:fixed;top:48%;left:7px;z-index:4000;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;pointer-events:none;background:#fff9;color:#28212c;box-shadow:0 4px 16px #32233622;font:22px Arial,sans-serif;opacity:0;transform:translateX(-10px);transition:opacity .16s,transform .2s}#floatBackGlyph.visible{opacity:1;transform:translateX(12px)}
+@media(max-width:650px){.float-entry{padding:10px}.float-entry-paper{min-height:100%;max-height:100dvh;padding:26px 19px;display:flex;flex-direction:column;justify-content:center}.float-entry h2{font-size:66px}.float-entry-results{max-height:38dvh}.float-card .mini{width:38px!important;height:38px!important}.float-entry-hit strong{font-size:20px}}
 </style>
 </head>
 <body>
@@ -99,16 +116,26 @@ button:focus-visible,.float-card:focus-visible{outline:2px solid #998595;outline
    <div class="field-watermark">NOT EVERY SONG NEEDS A DESTINATION.</div>
  </main>
  <footer class="footer">
-  <div class="footleft"><div class="sound-icon" id="soundIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M3 11v2m4-6v10m4-15v20m4-15v10m4-14v18m4-14v10"/></svg></div><div class="now"><b id="nowPlaying">NO SOUND PLAYING</b><span id="nowHint">Original demo loops · import your own music</span></div></div>
+  <div class="footleft"><div class="sound-icon" id="soundIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M3 11v2m4-6v10m4-15v20m4-15v10m4-14v18m4-14v10"/></svg></div><div class="now"><b id="nowPlaying">NO SOUND PLAYING</b><span id="nowHint">DEEZER ONLY / FIND YOUR FIRST SONG</span></div></div>
   <div class="controls">
    <label class="motion" for="motionRange">MOTION <input id="motionRange" type="range" min="0" max="100" value="48" aria-label="Floating speed"><output id="motionValue">48</output></label>
    <button id="motionPause" class="linebtn" type="button"><span>PAUSE</span> FLOAT</button>
    <button id="resetBtn" class="linebtn" type="button">↺ RESET</button>
-   <button id="importBtn" class="linebtn accent" type="button">+ YOUR MUSIC</button>
+   <button id="floatNewSeed" class="linebtn accent" type="button">+ NEW DEEZER SEED</button>
   </div>
  </footer>
  <div id="toast" role="status" aria-live="polite"></div>
- <input id="filePicker" type="file" accept="audio/*,.mp3,.wav,.m4a,.ogg,.flac" multiple>
+ <input id="filePicker" type="file" accept="audio/*,.mp3,.wav,.m4a,.ogg,.flac" multiple hidden style="display:none">
+<div id="floatEntry" class="float-entry" role="dialog" aria-modal="true" aria-label="Find a Deezer recording">
+ <div class="float-entry-paper">
+   <div class="float-entry-top"><span>VEILRADIO / FLOAT 01</span><button type="button" id="floatEntryClose" aria-label="Close search">×</button></div>
+   <p class="float-entry-index">01 / BEGIN HERE</p><h2>where should<br>we <em>begin?</em></h2>
+   <p class="float-entry-help">AN ARTIST, A SONG, OR A DEEZER TRACK LINK</p>
+   <form id="floatEntryForm"><textarea id="floatEntryInput" rows="2" maxlength="180" placeholder="type a song, artist or feeling…" aria-label="Search Deezer"></textarea>
+   <button type="submit" id="floatEntrySubmit">SEARCH DEEZER →</button></form>
+   <div id="floatEntryResults" class="float-entry-results" aria-live="polite"></div>
+   <small class="float-entry-note">DEEZER RECORDINGS ONLY · 30-SECOND PREVIEWS · MAX 40 BUBBLES</small>
+ </div></div>
 </div>
 <script>
 const floatEmbedded=window.parent!==window || new URLSearchParams(location.search).has('embedded');
@@ -220,6 +247,10 @@ function spawn(data,origin=null,skipScale=false){if(bubbles.length>=40)return nu
  const play=el.querySelector('.play-action'),save=el.querySelector('.save-action');
  play.addEventListener('click',e=>{e.stopPropagation();toggleAudio(b)});
  save.addEventListener('click',e=>{e.stopPropagation();toggleSave(b)});
+ let floatHoverTimer=null;
+ el.addEventListener('pointerenter',e=>{if(!floatEmbedded||e.pointerType==='touch')return;
+  clearTimeout(floatHoverTimer);floatHoverTimer=setTimeout(()=>{if(bubbles.length<40)void floatPrefetchSimilar(b).catch(()=>{})},650)});
+ el.addEventListener('pointerleave',()=>{clearTimeout(floatHoverTimer)});
  el.addEventListener('click',e=>{if(pointerMoved){pointerMoved=false;return;}grow(b)});
  el.addEventListener('keydown',e=>{if(e.target!==el)return;if(e.key==='Enter'||e.key===' '){e.preventDefault();grow(b)}});
  el.addEventListener('pointerdown',e=>{if(e.target.closest('button'))return;e.preventDefault();el.setPointerCapture?.(e.pointerId);const bounds=field.getBoundingClientRect();drag={b,id:e.pointerId,px:e.clientX,py:e.clientY,ox:b.x,oy:b.y,at:performance.now(),started:false};b.dragging=true;el.classList.add('dragging')});
@@ -232,14 +263,34 @@ function spawn(data,origin=null,skipScale=false){if(bubbles.length>=40)return nu
 function removeBubble(b){const i=bubbles.indexOf(b);if(i<0)return;if(playingId===b.data.id)stopAudio();bubbles.splice(i,1);used.delete(b.data.id);b.el.remove();updateScale();refreshCounter()}
 function refreshCounter(){counter.textContent=String(bubbles.length).padStart(2,'0')+' / 40';counter.title=bubbles.length+' out of 40 floating cards'}
 function pulseLink(a,b){const path=document.createElementNS('http://www.w3.org/2000/svg','path');const mx=(a.x+b.x)*.5, my=(a.y+b.y)*.5-38;path.setAttribute('d',`M${a.x},${a.y} Q${mx},${my} ${b.x},${b.y}`);path.setAttribute('fill','none');path.setAttribute('stroke','#b99ead');path.setAttribute('stroke-width','1.2');path.setAttribute('stroke-dasharray','4 8');path.style.opacity='.85';path.style.transition='opacity 1.6s';svg.appendChild(path);requestAnimationFrame(()=>path.style.opacity='0');setTimeout(()=>path.remove(),1750)}
+// Predictive prefetch: start fetching related real recordings on play, and on a short hover.
+// Keep at most two background requests in flight, never fetch all 40 bubbles.
+const floatWarmJobs=new Map();
+const floatWarmLimit=2;
+function floatPrefetchSimilar(b,priority=false){
+ if(!floatEmbedded||!b||!b.data||!b.data.artist||!b.data.title||bubbles.length>=40)return Promise.resolve([]);
+ const key=String(b.data.id);
+ const cached=floatCache.get(key);
+ if(cached?.length)return Promise.resolve(cached);
+ if(floatWarmJobs.has(key))return floatWarmJobs.get(key);
+ if(!priority&&floatWarmJobs.size>=floatWarmLimit)return Promise.resolve([]);
+ const task=floatNative('related',{seed:b.data,exclude:bubbles.map(x=>x.data)}).then(out=>{
+  const records=(out.tracks||[]).filter(x=>x&&x.id&&!used.has(x.id));
+  floatCache.delete(key);floatCache.set(key,records);
+  // LRU bound: only keep 12 bubbles' prefetched suggestions in memory.
+  while(floatCache.size>12)floatCache.delete(floatCache.keys().next().value);
+  return records;
+ }).finally(()=>floatWarmJobs.delete(key));
+ floatWarmJobs.set(key,task);
+ return task;
+}
 async function grow(b){
  if(floatEmbedded){
   if(bubbles.length>=40){toast('40 / 40 · FLOAT FIELD IS FULL');return}
   const key=b.data.id;
   if(!floatCache.has(key)||!floatCache.get(key).length){
    if(b.loading)return;b.loading=true;b.el.classList.add('focused');toast('SEARCHING FOR RELATED MUSIC…');
-   try{const out=await floatNative('related',{seed:b.data,exclude:bubbles.map(x=>x.data)});
-    floatCache.set(key,(out.tracks||[]).filter(x=>!used.has(x.id)));
+   try{await floatPrefetchSimilar(b,true);
    }catch(e){toast(String(e.message||e).slice(0,110));b.loading=false;return}
    b.loading=false;
   }
@@ -266,6 +317,7 @@ function toggleSave(b){if(saved.has(b.data.id))saved.delete(b.data.id);else save
 function paintPlaying(){bubbles.forEach(b=>{const on=b.data.id===playingId&&!audio.paused;b.el.classList.toggle('is-playing',on);const btn=b.el.querySelector('.play-action');btn.innerHTML=on?pauseSvg:playSvg;btn.setAttribute('aria-pressed',String(on));btn.setAttribute('aria-label',(on?'Pause ':'Play ')+b.data.title)});}
 async function toggleAudio(b){if(playingId===b.data.id&&!audio.paused){audio.pause();paintPlaying();toast('PAUSED');return}
  try{audio.pause();playingId=b.data.id;
+  if(floatEmbedded)void floatPrefetchSimilar(b).catch(()=>{});
   let playable=b.data.url||(demos[b.data.demo]||demos[0]);
   if(floatEmbedded&&b.data.source!=='local'){
    const result=await floatNative('preview',{track:b.data});playable=result.url||'';
@@ -276,7 +328,7 @@ async function toggleAudio(b){if(playingId===b.data.id&&!audio.paused){audio.pau
   await audio.play();paintPlaying();toast('NOW PLAYING · '+b.data.title.toUpperCase());
  }catch(e){paintPlaying();toast(floatEmbedded?'PREVIEW UNAVAILABLE · TRY ANOTHER RECORD':'AUDIO NOT AVAILABLE · TRY ANOTHER CARD')}
 }
-function stopAudio(){audio.pause();audio.removeAttribute('src');audio.load();playingId=null;playingText.textContent='NO SOUND PLAYING';nowHint.textContent='Original demo loops · import your own music';paintPlaying()}
+function stopAudio(){audio.pause();audio.removeAttribute('src');audio.load();playingId=null;playingText.textContent='NO SOUND PLAYING';nowHint.textContent='DEEZER ONLY / FIND YOUR FIRST SONG';paintPlaying()}
 audio.addEventListener('ended',()=>{stopAudio()});audio.addEventListener('pause',paintPlaying);audio.addEventListener('play',paintPlaying);
 const prefersReducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 function animate(now){if(!last)last=now;const dt=Math.min(2,(now-last)/16.67),speed=(+motionRange.value/100)*1.3;last=now;tick+=dt;
@@ -321,7 +373,7 @@ motionRange.addEventListener('input',()=>{motionValue.textContent=motionRange.va
 document.querySelector('#motionPause').addEventListener('click',()=>{frozen=!frozen;document.querySelector('#motionPause span').textContent=frozen?'RESUME':'PAUSE';toast(frozen?'FLOATS HELD STILL':'FLOATS RELEASED')});
 document.querySelector('#floatExit').addEventListener('click',()=>{if(floatEmbedded){stopAudio();window.parent.postMessage({type:'veil-float-close'},'*')}});
 document.querySelector('#resetBtn').addEventListener('click',()=>{stopAudio();bubbles.forEach(b=>{if(b.data.url?.startsWith('blob:'))URL.revokeObjectURL(b.data.url);b.el.remove()});bubbles=[];used.clear();tick=0;seed();if(floatEmbedded)window.parent.postMessage({type:'veil-float-ready'},'*');toast('A FRESH FLOAT FIELD')});
-document.querySelector('#importBtn').addEventListener('click',()=>filePicker.click());
+document.querySelector('#floatNewSeed').addEventListener('click',()=>floatShowEntry());
 filePicker.addEventListener('change',()=>{
  let added=0;for(const file of [...filePicker.files]){if(bubbles.length>=40)break;
   const raw=file.name.replace(/\.[^.]+$/,'');const parts=raw.split(/\s+[-–]\s+/);
@@ -331,6 +383,53 @@ filePicker.addEventListener('change',()=>{
 });
 window.addEventListener('resize',()=>{updateScale();for(const b of bubbles)locate(b,b.x,b.y)});
 document.addEventListener('keydown',e=>{if(e.code==='Space'&&e.target===document.body){e.preventDefault();if(playingId){if(audio.paused)audio.play();else audio.pause()}}});
+
+/* VEILRADIO 05.22 DEEZER ENTRYPOINT / source restricted to Deezer */
+const floatEntry=document.getElementById('floatEntry');
+const floatEntryInput=document.getElementById('floatEntryInput');
+const floatEntryResults=document.getElementById('floatEntryResults');
+let floatEntryResultsData=[];
+function floatShowEntry(){floatEntry.classList.add('open');floatEntryResults.innerHTML='';floatEntryInput.value='';requestAnimationFrame(()=>floatEntryInput.focus());}
+function floatHideEntry(){if(!bubbles.length)return;floatEntry.classList.remove('open')}
+document.getElementById('floatEntryClose').addEventListener('click',floatHideEntry);
+document.getElementById('floatEntryForm').addEventListener('submit',async e=>{
+ e.preventDefault();const query=floatEntryInput.value.trim();if(!query)return;
+ if(!floatEmbedded){floatEntryResults.textContent='DEEZER SEARCH NEEDS THE VEILRADIO APP';return}
+ floatEntryResults.textContent='SEARCHING THE DEEZER CATALOGUE…';
+ document.getElementById('floatEntrySubmit').disabled=true;
+ try{
+  const res=await floatNative('search',{query});
+  floatEntryResultsData=(res.tracks||[]).filter(t=>t.preview&&t.artist&&t.title).slice(0,14);
+  floatEntryResults.innerHTML=floatEntryResultsData.length?floatEntryResultsData.map((t,i)=>`<button class="float-entry-hit" type="button" data-deezer-seed="${i}"><span><strong>${escapeHtml(t.title)}</strong><small>${escapeHtml(t.artist)} · DEEZER VERIFIED</small></span><span>BEGIN ↗</span></button>`).join(''):'NO PLAYABLE DEEZER RESULTS. TRY ARTIST + TRACK.';
+ }catch(error){floatEntryResults.textContent=String(error.message||error).slice(0,180)}
+ finally{document.getElementById('floatEntrySubmit').disabled=false}
+});
+floatEntryResults.addEventListener('click',e=>{
+ const btn=e.target.closest('[data-deezer-seed]');if(!btn)return;
+ const t=floatEntryResultsData[Number(btn.dataset.deezerSeed)];if(!t)return;
+ stopAudio();bubbles.forEach(b=>b.el.remove());bubbles=[];used.clear();floatCache.clear();
+ const chosen={id:'dz'+t.id,deezerId:String(t.id),artist:t.artist,title:t.title,preview:t.preview,url:'',mood:'veil',source:'deezer'};
+ spawn(chosen,null,true);updateScale();refreshCounter();floatEntry.classList.remove('open');toast('FIRST SIGNAL / '+t.artist.toUpperCase());
+});
+// The embedded app intentionally starts with no local song seeds.
+// Standalone demo can still load the demo bubbles.
+if(floatEmbedded)requestAnimationFrame(floatShowEntry);
+// Consistent left-edge swipe back in the Float iframe as well.
+const floatBackGlyph=document.createElement('div');floatBackGlyph.id='floatBackGlyph';floatBackGlyph.textContent='←';document.body.appendChild(floatBackGlyph);
+let floatBackStart=null;
+document.addEventListener('pointerdown',e=>{if(e.clientX<36)floatBackStart={x:e.clientX,y:e.clientY,id:e.pointerId};},true);
+document.addEventListener('pointermove',e=>{if(!floatBackStart||e.pointerId!==floatBackStart.id)return;
+ const dx=e.clientX-floatBackStart.x,dy=e.clientY-floatBackStart.y;
+ floatBackGlyph.classList.toggle('visible',dx>20&&Math.abs(dx)>Math.abs(dy)*1.2);
+},true);
+document.addEventListener('pointerup',e=>{if(!floatBackStart||e.pointerId!==floatBackStart.id)return;
+ const dx=e.clientX-floatBackStart.x,dy=e.clientY-floatBackStart.y;floatBackStart=null;floatBackGlyph.classList.remove('visible');
+ if(dx>85&&Math.abs(dx)>Math.abs(dy)*1.2){e.preventDefault();e.stopImmediatePropagation();
+ if(floatEntry.classList.contains('open')&&bubbles.length)floatHideEntry();
+ else if(floatEmbedded){stopAudio();window.parent.postMessage({type:'veil-float-close'},'*')}
+ }
+},true);
+
 </script>
 </body>
 </html>
