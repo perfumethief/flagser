@@ -35,22 +35,6 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.10.2'
-      - name: Fix embedded Settings API bridge
-        run: python3 tools/patch_android_settings_bridge.py
-      - name: Fix intermittent tab navigation
-        run: python3 tools/fix_android_tab_navigation.py
-      - name: Repair Android native API connection
-        run: python3 tools/fix_native_bridge_0517.py
-      - name: Enable endless underground discovery on Android
-        run: python3 tools/patch_desktop_discovery_0519.py app/src/main/assets/veilradio.html
-      - name: Integrate Float Mode
-        run: python3 tools/patch_float_mode_0520.py app/src/main/assets/veilradio.html
-      - name: Make Signal scrollable with a compact depth slider
-        run: python3 tools/patch_radio_signal_0521.py app/src/main/assets/veilradio.html
-      - name: Keep the Signal overlay scrollable on phones
-        run: python3 tools/patch_mobile_signal_scroll_0521.py app/src/main/assets/veilradio.html
-      - name: Prefetch similar Float songs while playing
-        run: python3 tools/patch_float_prefetch_0521.py app/src/main/assets/float.html
       - name: Build debug APK
         run: gradle --no-daemon :app:assembleDebug
       - uses: actions/upload-artifact@v4
